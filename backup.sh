@@ -4,7 +4,7 @@ while getopts 'z' OPTION
 do
     case "${OPTION}" in
         z)
-            zip=True
+            zip=true
         ;;
         \?)
             echo "$0: Error: Invalid option: -${OPTARG}" >&2
