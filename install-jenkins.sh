@@ -52,11 +52,25 @@ download_jenkins_generic_linux() {
     mv openlogic-openjdk-17.0.13+11-linux-x64 java
   fi
 
+  local ver
+  if [ "$version" == "lts" ]; then
+    ver="$stable_version"
+  elif [ "$version" == "unstable" ]; then
+    ver="$unstable_version"
+  else
+    ver="$version"
+  fi
+  echo "Downloading jenkins version: ${ver}"
+  download "https://github.com/jenkinsci/jenkins/releases/download/jenkins-${ver}/jenkins.war" jenkins.war
+
+  echo "Installing jenkins..."
   local jenkins_path
   jenkins_path="/usr/share/jenkins"
   sudo mkdir -p "${jenkins_path}"
   sudo mv java "${jenkins_path}"
+  echo "java -> ${jenkins_path}/java"
   sudo mv jenkins.war "${jenkins_path}/jenkins.war"
+  echo "jenkins.war -> ${jenkins_path}/jenkins.war"
   sudo mkdir -p /var/cache/jenkins
   sudo mkdir -p /var/lib/jenkins
 
@@ -76,15 +90,19 @@ download_jenkins_generic_linux() {
   exec 1>&5 5>&-
   sudo mkdir -p /etc/conf.d
   sudo mv jenkins.conf "${jenkins_config}"
+  echo "jenkins.conf -> ${jenkins_config}"
 
   curl -sSL https://aur.archlinux.org/cgit/aur.git/plain/jenkins.service?h=jenkins-lts > jenkins.service
   sudo mv jenkins.service /usr/lib/systemd/system/jenkins.service
+  echo "jenkins.service -> /usr/lib/systemd/system/jenkins.service"
 
   echo "d /var/cache/jenkins 0755 jenkins jenkins -" > jenkins.temp
   sudo mv jenkins.temp /usr/lib/tmpfiles.d/jenkins.conf
+  echo "d /var/lib/jenkins 0755 jenkins jenkins -" > jenkins.temp
 
   printf "u jenkins - \"Jenkins CI\" /var/lib/jenkins\ng jenkins -" > jenkins.sysuser
   sudo mv jenkins.sysuser /usr/lib/sysusers.d/jenkins.conf
+  echo "jenkins.sysuser -> /usr/lib/sysusers.d/jenkins.conf"
 
   sudo systemctl daemon-reload
   sudo systemctl enable jenkins
@@ -123,9 +141,6 @@ if [ "$download_java" ]; then
   download_java=$(required_java_version "$version")
   echo "Required java version: $download_java"
 fi
-
-#echo "Downloading jenkins version: ${version}"
-# download jenkins.war "https://github.com/jenkinsci/jenkins/releases/download/jenkins-${version}/jenkins.war"
 
 if [ "$os" == "linux" ]; then
   if [ "$version" == "lts" ] || [ "$version" == "unstable" ]; then
@@ -278,16 +293,16 @@ elif [ "$os" == "mac" ]; then
 
   brew install "$mac_jenkins"
   brew services start "$mac_jenkins"
-elif [ "$os" == "win" ]; then
-  if [ "$version" == "lts" ] || [ "$version" == "$stable_version" ]; then
-    download "https://2.mirrors.in.sahilister.net/jenkins/windows-stable/$stable_version/jenkins.msi"
-  elif [ "$version" == "unstable" ] || [ "$version" == "$unstable_version" ]; then
-    download "https://2.mirrors.in.sahilister.net/jenkins/windows/$unstable_version/jenkins.msi"
-  else
-    download "https://github.com/jenkinsci/jenkins/releases/download/jenkins-$version/jenkins.msi"
-  fi
-
-  msiexec /i jenkins.msi
+#elif [ "$os" == "win" ]; then
+#  if [ "$version" == "lts" ] || [ "$version" == "$stable_version" ]; then
+#    download "https://2.mirrors.in.sahilister.net/jenkins/windows-stable/$stable_version/jenkins.msi"
+#  elif [ "$version" == "unstable" ] || [ "$version" == "$unstable_version" ]; then
+#    download "https://2.mirrors.in.sahilister.net/jenkins/windows/$unstable_version/jenkins.msi"
+#  else
+#    download "https://github.com/jenkinsci/jenkins/releases/download/jenkins-$version/jenkins.msi"
+#  fi
+#
+#  msiexec /i jenkins.msi
 fi
 
 echo "Installation completed"
