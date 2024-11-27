@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 [-z] <directory> <backup_directory>"
+    exit 0
+fi
+
 if [ ! -d "$2" ]; then
     echo "Specified directory '$2' doesn't exist. Creating directory..."
     mkdir -p "$2"
@@ -20,7 +25,7 @@ do
             zip=true
         ;;
         \?)
-            echo "[${time}] $0: Error: Invalid option: -${OPTARG}" | tee -a "$2/backup.log"
+            echo "[${time}] $0: Error: Invalid option: -${OPTARG}"
             exit 1
         ;;
     esac
