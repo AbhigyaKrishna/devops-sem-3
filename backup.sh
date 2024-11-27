@@ -45,4 +45,4 @@ echo "[${time}] Backup completed." | tee -a "$2/backup.log"
 
 
 echo "Removing older backup files..."
-find "$2/*" -type f,d -mtime +6 -print0 | xargs rm -rf
+find "$2/" -type f,d -mtime +6 -print0 | xargs rm -rf
