@@ -5,20 +5,10 @@ if [ "$#" -ne 2 ]; then
     exit 0
 fi
 
-if [ ! -d "$2" ]; then
-    echo "Specified directory '$2' doesn't exist. Creating directory..."
-    mkdir -p "$2"
-fi
-
 time=$(date +"%Y-%m-%d_%H-%M-%S")
 
-if [ ! -d "$1" ]; then
-    echo "[${time}] Specified directory '$1' doesn't exist" | tee -a "$2/backup.log"
-    exit 1
-fi
-
 zip=false
-while getopts 'z' OPTION
+while getopts ":z:" OPTION
 do
     case "${OPTION}" in
         z)
@@ -30,6 +20,16 @@ do
         ;;
     esac
 done
+
+if [ ! -d "$2" ]; then
+    echo "Specified directory '$2' doesn't exist. Creating directory..."
+    mkdir -p "$2"
+fi
+
+if [ ! -d "$1" ]; then
+    echo "[${time}] Specified directory '$1' doesn't exist" | tee -a "$2/backup.log"
+    exit 1
+fi
 
 shift $((OPTIND - 1))
 
