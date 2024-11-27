@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -le 2 ]; then
     echo "Usage: $0 [-z] <directory> <backup_directory>"
     exit 0
 fi
