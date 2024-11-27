@@ -21,6 +21,8 @@ do
     esac
 done
 
+shift $((OPTIND - 1))
+
 if [ ! -d "$2" ]; then
     echo "Specified directory '$2' doesn't exist. Creating directory..."
     mkdir -p "$2"
@@ -30,8 +32,6 @@ if [ ! -d "$1" ]; then
     echo "[${time}] Specified directory '$1' doesn't exist" | tee -a "$2/backup.log"
     exit 1
 fi
-
-shift $((OPTIND - 1))
 
 if [ $zip ]; then
     tar -czvf "$2/backup-${time}.tar.gz" "$1"
