@@ -112,11 +112,17 @@ download_jenkins_generic_linux() {
 os=$(detect_os)
 echo "Detected operating system: $os"
 
+if [ "$os" == "win" ]; then
+  echo "Installation on windows is currently not supported! Exiting..."
+  exit 1
+fi
+
 echo "Fetching version..."
 stable_version=$(curl -sSL --max-redirs 2 https://updates.jenkins.io/stable/latestCore.txt)
 unstable_version=$(curl -sSL --max-redirs 2 https://updates.jenkins.io/current/latestCore.txt)
 echo "Stable/Lts version: $stable_version"
 echo "Unstable/Weekly version: $unstable_version"
+echo
 
 if [ -x "$(command -v java)"  ]; then
   java_version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
@@ -127,9 +133,11 @@ else
   echo "Java not installed"
 fi
 
+echo
 echo "Enter jenkins version to install."
 echo "[l]ts  [u]nstable  or write version number"
 read -rp "Default: l >> " version
+echo
 if [ ! "$version" ] || [ "$version" == "l" ]; then
   version="lts"
 elif [ "$version" == "u" ]; then
@@ -140,6 +148,7 @@ download_java=$(detect_supported_java "$version" "$java_version")
 if [ "$download_java" ]; then
   download_java=$(required_java_version "$version")
   echo "Required java version: $download_java"
+  echo
 fi
 
 if [ "$os" == "linux" ]; then
